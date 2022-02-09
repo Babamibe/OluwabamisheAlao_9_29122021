@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { ROUTES, ROUTES_PATH } from "../constants/routes"
 import { screen } from "@testing-library/dom"
 

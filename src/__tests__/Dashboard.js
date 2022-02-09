@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { fireEvent, screen } from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import DashboardFormUI from "../views/DashboardFormUI.js"
@@ -30,15 +34,13 @@ describe('Given I am connected as an Admin', () => {
   })
   describe('When I am on Dashboard page but it is loading', () => {
     test('Then, Loading page should be rendered', () => {
-      const html = DashboardUI({ loading: true })
-      document.body.innerHTML = html
+      document.body.innerHTML = DashboardUI({ loading: true })
       expect(screen.getAllByText('Loading...')).toBeTruthy()
     })
   })
   describe('When I am on Dashboard page but back-end send an error message', () => {
     test('Then, Error page should be rendered', () => {
-      const html = DashboardUI({ error: 'some error message' })
-      document.body.innerHTML = html
+      document.body.innerHTML = DashboardUI({ error: 'some error message' })
       expect(screen.getAllByText('Erreur')).toBeTruthy()
     })
   })
@@ -108,6 +110,37 @@ describe('Given I am connected as an Admin', () => {
       expect(handleEditTicket).toHaveBeenCalled()
       userEvent.click(iconEdit)
       expect(handleEditTicket).toHaveBeenCalled()
+    })
+  })
+
+  describe('When I am on Dashboard page and I click 2 times on edit icon of a card', () => {
+    test('Then, big bill Icon should Appear',  () => {
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Admin'
+      }))
+
+      const dashboard = new Dashboard({
+        document, onNavigate, store: null, bills:bills, localStorage: window.localStorage
+      })
+      document.body.innerHTML = DashboardUI({ data: { bills } })
+
+      const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
+      const icon1 = screen.getByTestId('arrow-icon1')
+      icon1.addEventListener('click', handleShowTickets1)
+      userEvent.click(icon1)
+      expect(handleShowTickets1).toHaveBeenCalled()
+      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy()
+      const iconEdit = screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro')
+      userEvent.click(iconEdit)
+      userEvent.click(iconEdit)
+      const bigBilledIcon = screen.queryByTestId("big-billed-icon")
+      expect(bigBilledIcon).toBeTruthy()
     })
   })
 
