@@ -15,6 +15,7 @@ import AddBill from "../__mocks__/addBill"
 jest.mock('axios');
 describe("Given I am connected as an employee", () => {
   describe("When I am on nouvelle note de frais", () => {
+    //log in as user and open new bill
     beforeEach(() => {
       const user = JSON.stringify({ 
           type: "Employee",
@@ -33,6 +34,7 @@ describe("Given I am connected as an employee", () => {
       Router();
     });
 
+    //check the required input
     test("Then the type of expense is required", () => {
       const type = screen.getByTestId("expense-type");
       expect(type).toBeRequired();
@@ -58,19 +60,21 @@ describe("Given I am connected as an employee", () => {
 
     describe("when the file format is not accepted", () =>{
       test("Then the value of input's file  should be empty", () => {
+        //init newBill
         const newBill = new NewBill({
           document,         
         });
 
         window.alert = jest.fn();
+        //mock file
         const inputData = {
           file: "file.pdf",
         };
 
         const handleChangeFile = jest.fn(newBill.handleChangeFile);
         const inputFile = screen.getByTestId("file");
+        //listen to change in file input
         inputFile.addEventListener("change", handleChangeFile);
-
         fireEvent.change(inputFile, {
           target: {
               files: [
@@ -80,19 +84,23 @@ describe("Given I am connected as an employee", () => {
               ],
           },
         });
+        //the file name should not appear
         expect(inputFile.value).toEqual("");
       });
     });
 
     describe("When the image format is accepted", () => {
       test("Then the file name should be displayed into the input", () => {
+        // build user interface
         const html = NewBillUI();
         document.body.innerHTML = html;
 
+        //init newBill
         const newBill = new NewBill({ document, onNavigate, store: null, localStorage });
         const changeFile = jest.fn(newBill.handleChangeFile);
         const file = screen.getByTestId("file");
         
+        // listen to check file input change
         file.addEventListener("change", changeFile);
         fireEvent.change(file, {
           target: {
@@ -100,8 +108,11 @@ describe("Given I am connected as an employee", () => {
           },
         });
 
+        //the function changeFile should be called
         expect(changeFile).toHaveBeenCalled();
+        //the file name should appear in the input
         expect(file.files[0].name).toBe("image.jpg");
+        //the form can be sent
         expect(screen.getByText('Envoyer une note de frais')).toBeTruthy();
       }); 
     })
@@ -136,29 +147,38 @@ describe("Given I am connected as an employee", () => {
   });
     describe("When click on submit button of form new bill", () => {
       test("Then should called handleSubmit function", () => {
+        // build user interface
         const html = NewBillUI();
         document.body.innerHTML = html;
-
+        
+        //init store
         const store = null;
         const onNavigate = (pathname) => {
           document.body.innerHTML = pathname;
         };
 
+        //init newBill
         const newBill = new NewBill({ document, onNavigate, store, localStorage: window.localStorage });
         const newBillSubmitted = screen.getByTestId("form-new-bill");
 
+        //verify the presence of form new bill id
         expect(newBillSubmitted).toBeTruthy();
 
+        //listen to check if form is submitted
         const handleSubmit = jest.fn(newBill.handleSubmit);
         newBillSubmitted.addEventListener("submit", handleSubmit);
         fireEvent.submit(newBillSubmitted);
 
+        //the handleSubmit function should be called
         expect(handleSubmit).toHaveBeenCalled();
       });
+
       test("Then bill form is submitted", () => {
+        //user interface
         const html = NewBillUI();
         document.body.innerHTML = html;
-
+        
+        //init newBill
         const store = null;
         const newBill = new NewBill({ document, onNavigate, store, localStorage: window.localStorage });
 
@@ -168,51 +188,24 @@ describe("Given I am connected as an employee", () => {
         newBillSubmitted.addEventListener("submit", createdBill);
         fireEvent.submit(newBillSubmitted);
 
+        //the function updateBill should be called
         expect(createdBill).toHaveBeenCalled();
+        //the text "Envoyer une note de frais" should appear
         expect(screen.getAllByText("Envoyer une note de frais")).toBeTruthy();
       });
     })    
   });
 
   describe('When I add a file other than an image (jpg, jpeg or png)', () => {
-    test("Then, the bill shouldn't be created and I stay on the NewBill page", () => {
-        // Init firestore
-        const store = null;
 
-        // Build user interface
-        const html = NewBillUI();
-        document.body.innerHTML = html;
-
-        // Init newBill
-        const newBill = new NewBill({
-            document,
-            onNavigate,
-            store,
-            localStorage: window.localStorage,
-        });
-
-        // mock of handleSubmit
-        const handleSubmit = jest.fn(newBill.handleSubmit);
-
-        newBill.fileName = 'invalid';
-
-        // EventListener to submit the form
-        const submitBtn = screen.getByTestId('form-new-bill');
-        submitBtn.addEventListener('submit', handleSubmit);
-        fireEvent.submit(submitBtn);
-
-        // handleSubmit function must be called
-        expect(handleSubmit).toHaveBeenCalled();
-        expect(screen.getAllByText('Envoyer une note de frais')).toBeTruthy();
-    });
 
     test('Then the error message should be display', async () => {
-        // Build user interface
+        // user interface
         const html = NewBillUI();
         const store = null ;
         document.body.innerHTML = html;
 
-        // Init newBill
+        // init newBill
         const newBill = new NewBill({
             document,
             onNavigate,

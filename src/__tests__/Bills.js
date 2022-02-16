@@ -94,6 +94,7 @@ describe("Given I am connected as an employee", () => {
           billsClass.handleClickIconEye});
         eye.addEventListener("click", handleClickIconEye);
         userEvent.click(eye);
+        //the handleClickOnEye function should be called
         expect(handleClickIconEye).toHaveBeenCalled();
         expect($.fn.modal).toBeTruthy();
     });
@@ -101,8 +102,9 @@ describe("Given I am connected as an employee", () => {
 
 
   describe("When I click on New bill button", () => {
-    test("Then It should renders NewBill page", () => {
-        Object.defineProperty(window, "localStorage", {
+    test("Then It should render NewBill page", () => {
+      //log in as user 
+      Object.defineProperty(window, "localStorage", {
             value: localStorageMock,
         });
         const user = JSON.stringify({
@@ -116,6 +118,7 @@ describe("Given I am connected as an employee", () => {
         const onNavigate = (pathname) => {
             document.body.innerHTML = ROUTES({ pathname });
         };
+        //init Bills 
         const store = null;
         const billsNews = new Bills({
             document,
@@ -128,6 +131,7 @@ describe("Given I am connected as an employee", () => {
         const newBillButton = screen.getByTestId("btn-new-bill");
         newBillButton.addEventListener("click", handleClickNewBill);
         userEvent.click(newBillButton);
+        // the function handleClickNewBill should be called
         expect(handleClickNewBill).toHaveBeenCalled();
         expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
     });
@@ -141,6 +145,7 @@ describe("Given I am connected as an employee", () => {
         error: 'some error message'
       });
       document.body.innerHTML = html;
+      //verify that the error message appears
       expect(screen.getAllByText('Erreur')).toBeTruthy();
     })
 
@@ -153,6 +158,7 @@ describe("Given I am connected as an employee", () => {
         loading: true
       });
       document.body.innerHTML = html;
+      //verify that the loading text appears
       expect(screen.getAllByText('Loading...')).toBeTruthy();
     });
   });
@@ -168,6 +174,7 @@ describe("Given I am connected as an employee", () => {
       const billStatus = screen.getAllByTestId("status");
       const billIcon = screen.getAllByTestId("icon-eye");
 
+      //verify that the bill information appears
       expect(billType.length).toBeGreaterThan(0);
       expect(billName.length).toBeGreaterThan(0);
       expect(billDate.length).toBeGreaterThan(0);
@@ -191,9 +198,7 @@ describe("Given I am a user connected as Employee", () => {
       
       axios.get.mockResolvedValue(resp);
       
-      return OldBills.all().then(data => expect(data).toEqual(oldBills));
-
-     
+      return OldBills.all().then(data => expect(data).toEqual(oldBills));     
       
     });
     test("fetches bills from an API and fails with 404 message error", async () => {
